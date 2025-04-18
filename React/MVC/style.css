@@ -1,0 +1,7 @@
+h1 {
+  text-decoration: underline;
+}
+
+.completed {
+  text-decoration: line-through;
+}

@@ -1,0 +1,140 @@
+/* css syntax */
+/* selector {
+    property1: value1;
+    property2: value2;
+} */
+
+/* tag name selector */
+h2 {
+  color: green;
+  background-color: brown;
+
+  /* set four margins */
+  /* margin: 32px; */
+
+  /* set top&bottom, left&right  */
+  /* margin: 16px 32px; */
+
+  /* set top, right, bottom, left margin */
+  margin: 16px 8px 32px 48px;
+
+  padding: 16px;
+  /* padding: 16px 32px; */
+
+  /* margin-top: 32px;
+  margin-right: 16px;
+  margin-bottom: 8px;
+  margin-left: 48px; */
+
+  border: 5px solid blue;
+  border-radius: 8px;
+}
+
+/* id selector */
+
+#myContainer {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+  border: 3px solid blue;
+}
+
+/* class selector */
+.list-item {
+  color: brown;
+  font-size: 24px;
+}
+
+/* selector combination */
+
+/* select by child element */
+.my-list .list-item {
+  color: green;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+/* select element which meets all the selectors */
+#myColorDiv.text-green.yellow-border.brown-background {
+  color: green;
+  border: 3px solid yellow;
+  background-color: brown;
+}
+
+/* select elements that meets any of the selectors, separated by comma */
+.yellow-green,
+.green-yellow {
+  color: yellowgreen;
+}
+
+.btn {
+  padding: 16px;
+  color: pink;
+  border: 2px solid pink;
+  background-color: white;
+}
+
+/* pseudo-class */
+.btn:hover {
+  background-color: pink;
+  color: white;
+}
+
+/* .list-container .first-item {
+  color: red;
+} */
+
+.list-container li:first-child {
+  color: red;
+}
+
+.list-container li:last-child {
+  color: blue;
+}
+
+.list-container li:nth-child(4) {
+  color: chocolate;
+}
+
+.list-container li:nth-child(even) {
+  background-color: lightblue;
+}
+
+/* body {
+  font-size: 24px;
+} */
+
+.unit-parent {
+  font-size: 24px;
+  /* background-color: red; */
+  width: 200px;
+}
+
+/* html {
+  font-size: 32px;
+} */
+
+.unit-container {
+  /* em - relative unit - relative to parent element font size */
+  /* width: 5em; */
+
+  /* rem - relative unit - relatvei to root element font size */
+  /* width: 5rem; */
+
+  /* percentage - relative to parent width */
+  /* width: 75%; */
+
+  /* view width - relative to viewport width*/
+  /* width: 50vw; */
+
+  /* view height -  relative to viewport height*/
+
+  width: 50vh;
+
+  /* pixel - abusolute unit */
+  /* width: 100px; */
+
+  height: 75px;
+
+  background-color: blueviolet;
+}
