@@ -18,34 +18,18 @@ follow: https://todomvc.com/examples/react/dist/#/
 5. disable the checkbox in editing mode
 */
 
-let currentFilter = "all"; // all, active, completed
-let editingId = null; // -1 means not editing
-
-function setFilter(filter) {
-  currentFilter = filter;
-  renderView();
-}
-
-function updateTodoTitle(id, newTitle) {
-  const todo = state.todos.find((todo) => todo.id === id);
-  if (todo) {
-    todo.title = newTitle;
-  }
-  editingId = null; // reset editingId
-  renderView();
-}
-
-function cancelEdit() {
-  editingId = null; // reset editingId
-  renderView();
-}
-
 const state = {
-  todos: [{ id: -1, title: "first", completed: false }],
-  count: 0
+  todos: [{ id: -1, title: "first", completed: false, isEditing: false }],
+  count: 0,
+  filterBtn: "ALL",
 };
 
 // Controlers
+
+function toggleActiveFilter(id) {
+  state.filterBtn = id;
+  renderView();
+}
 
 function createTodo(title) {
   // Manipulate Model
@@ -53,11 +37,39 @@ function createTodo(title) {
     id: state.count + 1,
     title: title,
     completed: false,
+    isEditing: false,
   };
   state.todos.push(newTodo);
   state.count++;
 
   //Trigger view render
+  renderView();
+}
+
+function editTodo(id) {
+  const todo = state.todos.find((todo) => todo.id === id);
+
+  if (todo) {
+    todo.isEditing = true;
+  }
+  renderView();
+}
+
+function confirmEditing(id, newValue) {
+  console.log(id, newValue);
+  const todo = state.todos.find((todo) => todo.id === id);
+  if (todo) {
+    todo.title = newValue;
+    todo.isEditing = false;
+  }
+  renderView();
+}
+
+function cancelTodoEditing(id) {
+  const todo = state.todos.find((todo) => todo.id === id);
+  if (todo) {
+    todo.isEditing = false;
+  }
   renderView();
 }
 
@@ -83,79 +95,89 @@ function toggleTodo(id) {
 const todoInput = document.querySelector("#todo-input");
 const addBtn = document.querySelector("#add-btn");
 const listContainer = document.querySelector("#list-container");
+const filterBtnGroup = document.querySelector(".filter-btn-group");
 
 function createTodoNode(todo) {
   const li = document.createElement("li");
+
+  const checkbox = document.createElement("input");
+  checkbox.className = "checkbox";
+  checkbox.type = "checkbox";
+  checkbox.checked = todo.completed;
   li.id = todo.id;
 
-  if (editingId === todo.id) {
+  if (!todo.isEditing) {
+    const span = document.createElement("span");
+    const deleteBtn = document.createElement("button");
+    const editBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    editBtn.textContent = "Edit";
+    editBtn.className = "edit-btn";
+
+    if (todo.completed) {
+      span.className = "completed";
+    }
+
+    span.textContent = todo.title;
+    deleteBtn.textContent = "Delete";
+    li.append(checkbox, span, editBtn, deleteBtn);
+
+    return li;
+  } else {
+    checkbox.disabled = true;
     const input = document.createElement("input");
     input.value = todo.title;
     input.className = "edit-input";
-
     const confirmBtn = document.createElement("button");
-    confirmBtn.textContent = "Confirm";
-    confirmBtn.onclick = () => updateTodoTitle(todo.id, input.value);
-
     const cancelBtn = document.createElement("button");
+    confirmBtn.className = "confirm-btn";
+    cancelBtn.className = "cancel-btn";
+    confirmBtn.textContent = "Confirm";
     cancelBtn.textContent = "Cancel";
-    cancelBtn.onclick = cancelEdit;
-
-    li.append(input, confirmBtn, cancelBtn);
-  } else {
-    const span = document.createElement("span");
-    span.textContent = todo.title;
-    if (todo.completed) span.className = "completed";
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.className = "checkbox";
-    checkbox.checked = todo.completed;
-    if (editingId !== null) checkbox.disabled = true;
-
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "Edit";
-    editBtn.onclick = () => {
-      editingId = todo.id;
-      renderView();
-    };
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
-    deleteBtn.className = "delete-btn";
-
-    li.append(checkbox, span, editBtn, deleteBtn);
+    li.append(checkbox, input, confirmBtn, cancelBtn);
+    return li;
   }
-  return li;
 }
 
 function renderView() {
   listContainer.innerHTML = "";
-  const filtered = state.todos.filter((todo) => {
-    if (currentFilter === "active") return !todo.completed;
-    if (currentFilter === "completed") return todo.completed;
-    return true;
-  });
+  state.todos
+    .filter((todo) => {
+      if (state.filterBtn === "ALL") {
+        return true;
+      }
+      if (state.filterBtn === "ACTIVE") {
+        return !todo.completed;
+      }
+      if (state.filterBtn === "COMPLETED") {
+        return todo.completed;
+      }
+    })
+    .forEach(function (todo) {
+      const li = createTodoNode(todo);
+      listContainer.append(li);
+    });
 
-  filtered.forEach((todo) => {
-    const li = createTodoNode(todo);
-    listContainer.appendChild(li);
+  const btns = document.querySelectorAll(".filter-btn-group button");
+  btns.forEach((btn) => {
+    console.log(btn);
+    if (btn.id === state.filterBtn) {
+      btn.className = "active";
+    } else {
+      btn.className = "";
+    }
   });
 
   document.querySelector("p").textContent = `${state.todos.filter(t => !t.completed).length} items left!`;
 }
 
-// Filter button handlers
-document.querySelectorAll("div button").forEach((btn) => {
-  if (btn.textContent === "All") btn.onclick = () => setFilter("all");
-  if (btn.textContent === "Active") btn.onclick = () => setFilter("active");
-  if (btn.textContent === "Completed") btn.onclick = () => setFilter("completed");
-  if (btn.textContent === "Clear Completed") btn.onclick = () => {
-    state.todos = state.todos.filter((t) => !t.completed);
-    renderView();
-  };
-});
 
+
+filterBtnGroup.addEventListener("click", (e) => {
+  if (e.target.tagName === "BUTTON") {
+    toggleActiveFilter(e.target.id);
+  }
+});
 
 addBtn.addEventListener("click", () => {
   createTodo(todoInput.value);
@@ -172,6 +194,17 @@ listContainer.addEventListener("click", (e) => {
     //click the checkbox
     const li = e.target.parentElement;
     toggleTodo(Number(li.id));
+  } else if (e.target.className === "edit-btn") {
+    const li = e.target.parentElement;
+    editTodo(Number(li.id));
+  } else if (e.target.className === "cancel-btn") {
+    const li = e.target.parentElement;
+    cancelTodoEditing(Number(li.id));
+  } else if (e.target.className === "confirm-btn") {
+    const li = e.target.parentElement;
+    const editInput = li.querySelector(".edit-input");
+
+    confirmEditing(Number(li.id), editInput.value);
   }
 });
 

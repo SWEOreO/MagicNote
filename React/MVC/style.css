@@ -5,3 +5,7 @@ h1 {
 .completed {
   text-decoration: line-through;
 }
+
+.active {
+  border: 1px solid red;
+}
